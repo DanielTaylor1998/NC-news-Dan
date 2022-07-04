@@ -37,3 +37,24 @@ describe('testing app GET /api/topics', () => {
         })
     });
 });
+
+describe('testing app GET /api/articles/:article_id', () => {
+    const testArticleObj = {
+        title : expect.any(String),
+        topic : expect.any(String),
+        author : expect.any(String),
+        body : expect.any(String),
+        created_at : expect.any(String),
+        votes : expect.any(Number)
+    }
+    const articleId = 1;
+    test('should return an article object (1) with correct properties and status 200', () => {
+        return request(app)
+        .get(`/api/articles/${articleId}`)
+        .expect(200)
+        .then(({ body }) => {
+            const article = body;
+            expect(article).toEqual({article_id : 1, ...testArticleObj});
+        })
+    });
+});
