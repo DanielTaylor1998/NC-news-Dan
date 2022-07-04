@@ -8,6 +8,17 @@ beforeEach(() => seed({ topicData, articleData, userData, commentData}));
 
 afterAll(() => db.end());
 
+describe('testing 404 endpoint', () => {
+    test('should output 404 and a message when givien a invalid url', () => {
+        return request(app)
+        .get("/api/badURL")
+        .expect(404)
+        .then(({ body: { msg }}) => {
+            expect(msg).toBe("Invalid Path !")
+        })
+    });
+});
+
 describe('testing app GET /api/topics', () => {
     const testTopicObj = {
         description: expect.any(String),
