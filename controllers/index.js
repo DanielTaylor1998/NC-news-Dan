@@ -5,9 +5,7 @@ exports.getTopics = (req, res, next) => {
     .then((topics) => {
       res.status(200).send(topics);
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next)
 };
 
 exports.getArticle = (req, res, next) => {
@@ -16,7 +14,5 @@ exports.getArticle = (req, res, next) => {
     .then((article) => {
       res.status(200).send(article);
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next)
 };

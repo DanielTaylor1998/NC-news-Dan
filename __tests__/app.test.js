@@ -45,11 +45,22 @@ describe('testing for non exist resources', () => {
         .get(`/api/articles/${nonExistingId}`)
         .expect(404)
         .then(({ body : { msg }}) => {
-            expect(msg).toBe("This resource does not exist !")
+            expect(msg).toBe("This article id does not exist !")
         })
     });
 });
 
+describe('test for bad Ids', () => {
+    const badId = 'thisisabadId'
+    test('should output 400 and a message stating the id is invalid', () => {
+        return request(app)
+        .get(`/api/articles/${badId}`)
+        .expect(400)
+        .then(({ body : { msg }}) => {
+            expect(msg).toBe("invalid ID !")
+        })
+    });
+});
 
 describe('testing app GET /api/articles/:article_id', () => {
     const testArticleObj = {
