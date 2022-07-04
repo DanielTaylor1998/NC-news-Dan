@@ -5,3 +5,11 @@ exports.selectTopics = async () => {
   const result = await db.query(text);
   return result.rows;
 };
+
+exports.selectArticle = async (article_id) => {
+  let text = "Select * FROM articles WHERE article_id = $1;";
+  const result = await db.query(text, [article_id]);
+  const article = result.rows[0];
+  if (!article) throw { status: 404, msg: "This article id does not exist !" };
+  return article;
+};
