@@ -38,6 +38,19 @@ describe('testing app GET /api/topics', () => {
     });
 });
 
+describe('testing for non exist resources', () => {
+    const nonExistingId = 99999999
+    test('should output a 404 and a message when given non=existent id', () => {
+        return request(app)
+        .get(`/api/articles/${nonExistingId}`)
+        .expect(404)
+        .then(({ body : { msg }}) => {
+            expect(msg).toBe("This resource does not exist !")
+        })
+    });
+});
+
+
 describe('testing app GET /api/articles/:article_id', () => {
     const testArticleObj = {
         title : expect.any(String),
