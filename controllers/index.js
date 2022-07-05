@@ -1,4 +1,4 @@
-const { selectTopics, selectArticle } = require("../models");
+const { selectTopics, selectArticle, updateArticle } = require("../models");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -16,3 +16,13 @@ exports.getArticle = (req, res, next) => {
     })
     .catch(next)
 };
+
+exports.patchArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  const body = req.body
+  updateArticle(article_id, body)
+    .then((article) => {
+      res.status(200).send({ article : article})
+    })
+    .catch(next)
+}

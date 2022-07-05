@@ -8,9 +8,15 @@ exports.customErrorHandler = (err, req, res, next) => {
     } else next(err)
 }
 
-exports.badIdhandler = (err, req, res, next) => {
+exports.invalidSyntaxForType = (err, req, res, next) => {
     if(err.code === '22P02') {
-        res.status(400).send({ msg : "invalid ID !"})
+        res.status(400).send({ msg : "Your body or request has the wrong input type"})
+    } else next(err)
+}
+
+exports.malformedBodyHandler = (err, req, res, next) => {
+    if(err.code === '23502') {
+        res.status(400).send({ msg : "The body is missing fields or Malformed !"})
     } else next(err)
 }
 

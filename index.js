@@ -1,6 +1,6 @@
 const express = require('express');
-const { getTopics, getArticle } = require('./controllers');
-const { invalidPathError, customErrorHandler, unhandlesErrorHandler, badIdhandler } = require('./errors/errorHandler');
+const { getTopics, getArticle, patchArticle } = require('./controllers');
+const { invalidPathError, customErrorHandler, unhandlesErrorHandler,  malformedBodyHandler, invalidSyntaxForType } = require('./errors/errorHandler');
 
 
 const app = express();
@@ -11,10 +11,14 @@ app.get("/api/topics", getTopics);
 
 app.get("/api/articles/:article_id", getArticle);
 
+app.patch("/api/articles/:article_id", patchArticle)
+
 //error handler for invalid paths
 app.use("*", invalidPathError)
 
-app.use('/', badIdhandler)
+app.use("/", invalidSyntaxForType)
+
+app.use(malformedBodyHandler)
 
 //default error handlers
 app.use(customErrorHandler)
