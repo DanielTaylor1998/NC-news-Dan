@@ -140,7 +140,7 @@ describe("testing app GET /api/articles/:article_id", () => {
       .expect(200)
       .then(({ body }) => {
         const article = body;
-        expect(article).toEqual({ article_id: 1, ...testArticleObj });
+        expect(article).toEqual({ article_id: 1, ...testArticleObj, comment_count : 11 });
       });
   });
 });
