@@ -1,4 +1,4 @@
-const { selectTopics, selectArticle, updateArticle } = require("../models");
+const { selectTopics, selectArticle, updateArticle, selectUsers } = require("../models");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -25,4 +25,12 @@ exports.patchArticle = (req, res, next) => {
       res.status(200).send({ article : article})
     })
     .catch(next)
+}
+
+exports.getUsers = (req, res, next) => {
+  selectUsers() 
+  .then((users) => {
+    res.status(200).send(users);
+  })
+  .catch(next)
 }
