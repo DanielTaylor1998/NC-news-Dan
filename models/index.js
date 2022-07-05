@@ -7,7 +7,7 @@ exports.selectTopics = async () => {
 };
 
 exports.selectArticle = async (article_id) => {
-  const text = "Select * FROM articles WHERE article_id = $1;";
+  const text = "SELECT articles.*, CAST(COUNT(comments.article_id) AS int) AS comment_count FROM articles JOIN comments USING (article_id) WHERE article_id = $1 GROUP BY article_id;";
   const result = await db.query(text, [article_id]);
   const article = result.rows[0];
   if (!article) throw { status: 404, msg: "This article id does not exist !" }; //could throw RefernceError object instead
