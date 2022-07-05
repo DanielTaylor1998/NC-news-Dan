@@ -15,11 +15,17 @@ exports.selectArticle = async (article_id) => {
 };
 
 exports.updateArticle = async (article_id, body) => {
-  let text = "UPDATE articles SET votes = votes + $2 WHERE article_id = $1 RETURNING *;"
-  let queryValues = [article_id, body.inc_votes]
-  const result = await db.query(text, queryValues)
+  let text =
+    "UPDATE articles SET votes = votes + $2 WHERE article_id = $1 RETURNING *;";
+  let queryValues = [article_id, body.inc_votes];
+  const result = await db.query(text, queryValues);
   const article = result.rows[0];
-  if (!article) throw { status: 404, msg: "This article id does not exist !" }
+  if (!article) throw { status: 404, msg: "This article id does not exist !" };
   return article;
+};
 
+exports.selectUsers = async () => {
+  const text = "SELECT * FROM users";
+  const result = await db.query(text)
+  return result.rows;
 }

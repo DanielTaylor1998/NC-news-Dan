@@ -34,13 +34,33 @@ describe("testing app GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then(({ body }) => {
-        const topic = body;
-        expect(topic).toHaveLength(3);
-        expect(topic).toEqual(
+        const topics = body;
+        expect(topics).toHaveLength(3);
+        expect(topics).toEqual(
           expect.arrayContaining([expect.objectContaining(testTopicObj)])
         );
       });
   });
+});
+
+describe('testing app GET /api/users', () => {
+    const testUserObj = {
+        username: expect.any(String),
+        name: expect.any(String),
+        avatar_url : expect.any(String)
+    }
+    test('should return an array of user object with correct properties and satus 200', () => {
+        return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({body}) => {
+            const users = body;
+            expect(body).toHaveLength(4);
+            expect(users).toEqual(
+                expect.arrayContaining([expect.objectContaining(testUserObj)])
+            )
+        })
+    });
 });
 
 describe("testing for non exist resources", () => {
@@ -55,7 +75,7 @@ describe("testing for non exist resources", () => {
   });
 });
 
-describe("test for incorrect types", () => {
+describe("tests for incorrect types", () => {
   const badId = "thisisabadId";
   test("should output 400 and a message stating the id is invalid", () => {
     return request(app)
@@ -79,7 +99,7 @@ describe("test for incorrect types", () => {
   });
 });
 
-describe("test for malformed body", () => {
+describe("tests for malformed body", () => {
   const emptyBody = {};
   test("should output a 400 and a message stating the body is malformed/missing fields when given empty body", () => {
     return request(app)
@@ -172,3 +192,5 @@ describe("testing PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+
