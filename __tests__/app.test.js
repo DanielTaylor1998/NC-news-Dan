@@ -82,3 +82,51 @@ describe('testing app GET /api/articles/:article_id', () => {
         })
     });
 });
+
+describe('testing PATCH /api/articles/:article_id', () => {
+    const testArticleObj1 = {
+        article_id : 1,
+        title : expect.any(String),
+        topic : expect.any(String),
+        author : expect.any(String),
+        body : expect.any(String),
+        created_at : expect.any(String),
+        votes : 101
+    }
+    const testBody1 = {
+        inc_votes : 1
+    }
+    const articleId = 1;
+    test('should return a 200 and the updated article with postive increase', () => {
+        return request(app)
+        .patch(`/api/articles/${articleId}`)
+        .send(testBody1)
+        .expect(200)
+        .then(({ body }) => {
+            const article = body
+            expect(article).toEqual({ article : testArticleObj1})
+        })
+    });
+    const testArticleObj2 = {
+        article_id : 1,
+        title : expect.any(String),
+        topic : expect.any(String),
+        author : expect.any(String),
+        body : expect.any(String),
+        created_at : expect.any(String),
+        votes : 99
+    }
+    const testBody2 = {
+        inc_votes : -1
+    }
+    test('should return a 200 and the updated article with negative increase', () => {
+        return request(app)
+        .patch(`/api/articles/${articleId}`)
+        .send(testBody2)
+        .expect(200)
+        .then(({ body }) => {
+            const article = body
+            expect(article).toEqual({ article : testArticleObj2})
+        })
+    });
+});
