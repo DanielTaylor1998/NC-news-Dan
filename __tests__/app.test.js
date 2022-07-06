@@ -89,6 +89,30 @@ describe('testing app GET /api/articles', () => {
       });
 });
 
+describe('/api/articles/:article_id/comments', () => {
+  
+  const testCommentsObj = {
+      comment_id : expect.any(Number),
+      votes: expect.any(Number),
+      created_at: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String)
+    }
+    const articleId = 1;
+  test('should return an array of comments with correct properties', () => {
+    return request(app)
+    .get(`/api/articles/${articleId}/comments`)
+    .expect(200)
+    .then(({body}) => {
+      const comments = body;
+      expect(comments).toHaveLength(11)
+      expect(comments).toEqual(
+        expect.arrayContaining([expect.objectContaining(testCommentsObj)])
+      )
+    })
+  });
+});
+
 describe("testing for non exist resources", () => {
   const nonExistingId = 99999999;
   test("should output a 404 and a message when given non=existent id", () => {
