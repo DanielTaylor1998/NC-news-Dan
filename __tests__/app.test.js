@@ -112,8 +112,9 @@ describe("testing app /api/articles/:article_id/comments", () => {
       author: expect.any(String),
       body: expect.any(String),
     };
-    const articleId = 1;
+   
     test("should return an array of comments with correct properties", () => {
+      const articleId = 1;
       return request(app)
         .get(`/api/articles/${articleId}/comments`)
         .expect(200)
@@ -127,6 +128,17 @@ describe("testing app /api/articles/:article_id/comments", () => {
           //   expect.arrayContaining([expect.objectContaining(testCommentsObj)])
           // );
         });
+    });
+    
+    test('should return an empty array if the article_id exists but has no comments', () => {
+      const articleId = 4;
+      return request(app)
+      .get(`/api/articles/${articleId}/comments`)
+      .expect(200)
+      .then(({body}) => {
+        const comments = body;
+        expect(comments).toEqual([])
+      })
     });
   });
   describe("test GET errors on /api/articles/:article_id/comments is given a badId", () => {
