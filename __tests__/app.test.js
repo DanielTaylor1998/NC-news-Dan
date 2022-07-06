@@ -163,17 +163,6 @@ describe("testing app /api/articles/:article_id/comments", () => {
         });
     });
   });
-  describe("test GET errors for non existing id on /api/articles/:article_id", () => {
-    const nonExistingId = 99999999;
-    test("should output a 404 and a message when given non=existent id", () => {
-      return request(app)
-        .get(`/api/articles/${nonExistingId}`)
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("This article id does not exist !");
-        });
-    });
-  });
   describe("testing POST on /api/articles/:article_id/comments", () => {
     const testCommentsObj1 = {
       comment_id: expect.any(Number),
@@ -196,6 +185,31 @@ describe("testing app /api/articles/:article_id/comments", () => {
         .then(({ body }) => {
           const comment = body;
           expect(body).toEqual({ comment: testCommentsObj1 });
+        });
+    });
+  });
+  describe('testing POST errors for malformed body on /api/articles/:article_id/comments', () => {
+    const emptyBody = {};
+    const malformedBody = {
+      bad: 9999,
+    }
+    const articleId = 1;
+    test('should output a 400 and a message stating the body is malformed/missing fields when given empty body', () => {
+      return request(app)
+        .post(`/api/articles/${articleId}/comments`)
+        .send(emptyBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("The body is missing fields or Malformed !");
+        });
+    });
+    test('should output a 400 and a message stating the body is malformed/missing fields when given malformed body', () => {
+      return request(app)
+        .post(`/api/articles/${articleId}/comments`)
+        .send(malformedBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("The body is missing fields or Malformed !");
         });
     });
   });
@@ -247,6 +261,17 @@ describe("testing /api/articles/:article_id", () => {
         .expect(400)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Your body or request has the wrong input type");
+        });
+    });
+  });
+  describe("test GET errors for non existing id on /api/articles/:article_id", () => {
+    const nonExistingId = 99999999;
+    test("should output a 404 and a message when given non=existent id", () => {
+      return request(app)
+        .get(`/api/articles/${nonExistingId}`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("This article id does not exist !");
         });
     });
   });
