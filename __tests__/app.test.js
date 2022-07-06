@@ -12,15 +12,96 @@ const app = require("../index");
 beforeEach(() => seed({ topicData, articleData, userData, commentData }));
 
 afterAll(() => db.end());
+describe("Error tests", () => {
+  describe("testing 404 endpoint when given non existing URL", () => {
+    test("should output 404 and a message when givien a invalid url", () => {
+      return request(app)
+        .get("/api/badURL")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Invalid Path !");
+        });
+    });
+  });
+  describe("test for non existing id on app GET /api/articles/:article_id", () => {
+    const nonExistingId = 99999999;
+    test("should output a 404 and a message when given non=existent id", () => {
+      return request(app)
+        .get(`/api/articles/${nonExistingId}`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("This article id does not exist !");
+        });
+    });
+  });
 
-describe("testing 404 endpoint", () => {
-  test("should output 404 and a message when givien a invalid url", () => {
-    return request(app)
-      .get("/api/badURL")
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Invalid Path !");
-      });
+  describe("test for get /api/articles/:article_id/comments is given a non existing id", () => {
+    const nonExistingId = 99999999;
+    test("should output a 404 and a message when given non=existent id for comments endpoint", () => {
+      return request(app)
+        .get(`/api/articles/${nonExistingId}/comments`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("This article id does not exist !");
+        });
+    });
+  });
+
+  describe("tests for incorrect input types", () => {
+    const badId = "thisisabadId";
+    test("should output 400 and a message stating the id is invalid", () => {
+      return request(app)
+        .get(`/api/articles/${badId}`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Your body or request has the wrong input type");
+        });
+    });
+    test("should output 400 and a message stating the id is invalid for comments endpoint", () => {
+      return request(app)
+        .get(`/api/articles/${badId}/comments`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Your body or request has the wrong input type");
+        });
+    });
+    const badTypeBody = {
+      inc_votes: "NotType",
+    };
+    test("should output a 400 and a message stating the body is of wrong type", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send(badTypeBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Your body or request has the wrong input type");
+        });
+    });
+  });
+
+  describe("tests for malformed body", () => {
+    const emptyBody = {};
+    test("should output a 400 and a message stating the body is malformed/missing fields when given empty body", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send(emptyBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("The body is missing fields or Malformed !");
+        });
+    });
+    const malformedBody = {
+      bad: 9999,
+    };
+    test("should output a 400 and a message stating the body is malformed/missing fields when given malformed body", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send(malformedBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("The body is missing fields or Malformed !");
+        });
+    });
   });
 });
 
@@ -43,109 +124,71 @@ describe("testing app GET /api/topics", () => {
   });
 });
 
-describe('testing app GET /api/users', () => {
-    const testUserObj = {
-        username: expect.any(String),
-        name: expect.any(String),
-        avatar_url : expect.any(String)
-    }
-    test('should return an array of user object with correct properties and satus 200', () => {
-        return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({body}) => {
-            const users = body;
-            expect(body).toHaveLength(4);
-            expect(users).toEqual(
-                expect.arrayContaining([expect.objectContaining(testUserObj)])
-            )
-        })
-    });
-});
-
-describe('testing app GET /api/articles', () => {
-    const testArticleObj = {
-        article_id : expect.any(Number),
-        title: expect.any(String),
-        topic: expect.any(String),
-        author: expect.any(String),
-        body: expect.any(String),
-        created_at: expect.any(String),
-        votes: expect.any(Number),
-        comment_count: expect.any(Number)
-      };
-      test('should return an array of article objects with correct properties, status 200 by default sorted by descending date', () => {
-        return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(({ body }) => {
-            const articles = body;
-            expect(articles).toHaveLength(12)
-            expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z")
-            expect(articles).toEqual(
-                expect.arrayContaining([expect.objectContaining(testArticleObj)])
-            )
-        })
-      });
-});
-
-describe("testing for non exist resources", () => {
-  const nonExistingId = 99999999;
-  test("should output a 404 and a message when given non=existent id", () => {
-    return request(app)
-      .get(`/api/articles/${nonExistingId}`)
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("This article id does not exist !");
-      });
-  });
-});
-
-describe("tests for incorrect types", () => {
-  const badId = "thisisabadId";
-  test("should output 400 and a message stating the id is invalid", () => {
-    return request(app)
-      .get(`/api/articles/${badId}`)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Your body or request has the wrong input type");
-      });
-  });
-  const badTypeBody = {
-    inc_votes: "NotType",
+describe("testing app GET /api/users", () => {
+  const testUserObj = {
+    username: expect.any(String),
+    name: expect.any(String),
+    avatar_url: expect.any(String),
   };
-  test("should output a 400 and a message stating the body is of wrong type", () => {
+  test("should return an array of user object with correct properties and satus 200", () => {
     return request(app)
-      .patch("/api/articles/1")
-      .send(badTypeBody)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Your body or request has the wrong input type");
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const users = body;
+        expect(body).toHaveLength(4);
+        expect(users).toEqual(
+          expect.arrayContaining([expect.objectContaining(testUserObj)])
+        );
       });
   });
 });
 
-describe("tests for malformed body", () => {
-  const emptyBody = {};
-  test("should output a 400 and a message stating the body is malformed/missing fields when given empty body", () => {
+describe("testing app GET /api/articles", () => {
+  const testArticleObj = {
+    article_id: expect.any(Number),
+    title: expect.any(String),
+    topic: expect.any(String),
+    author: expect.any(String),
+    body: expect.any(String),
+    created_at: expect.any(String),
+    votes: expect.any(Number),
+    comment_count: expect.any(Number),
+  };
+  test("should return an array of article objects with correct properties, status 200 by default sorted by descending date", () => {
     return request(app)
-      .patch("/api/articles/1")
-      .send(emptyBody)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("The body is missing fields or Malformed !");
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body;
+        expect(articles).toHaveLength(12);
+        expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z");
+        expect(articles).toEqual(
+          expect.arrayContaining([expect.objectContaining(testArticleObj)])
+        );
       });
   });
-  const malformedBody = {
-    bad: 9999,
+});
+
+describe("testing app /api/articles/:article_id/comments", () => {
+  const testCommentsObj = {
+    comment_id: expect.any(Number),
+    votes: expect.any(Number),
+    created_at: expect.any(String),
+    author: expect.any(String),
+    body: expect.any(String),
   };
-  test("should output a 400 and a message stating the body is malformed/missing fields when given malformed body", () => {
+  const articleId = 1;
+  test("should return an array of comments with correct properties", () => {
     return request(app)
-      .patch("/api/articles/1")
-      .send(malformedBody)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("The body is missing fields or Malformed !");
+      .get(`/api/articles/${articleId}/comments`)
+      .expect(200)
+      .then(({ body }) => {
+        const comments = body;
+        expect(comments).toHaveLength(11);
+        expect(comments).toEqual(
+          expect.arrayContaining([expect.objectContaining(testCommentsObj)])
+        );
       });
   });
 });
@@ -166,7 +209,11 @@ describe("testing app GET /api/articles/:article_id", () => {
       .expect(200)
       .then(({ body }) => {
         const article = body;
-        expect(article).toEqual({ article_id: 1, ...testArticleObj, comment_count : 11 });
+        expect(article).toEqual({
+          article_id: 1,
+          ...testArticleObj,
+          comment_count: 11,
+        });
       });
   });
 });
@@ -218,5 +265,3 @@ describe("testing PATCH /api/articles/:article_id", () => {
       });
   });
 });
-
-
