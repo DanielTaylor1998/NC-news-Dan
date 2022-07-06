@@ -12,30 +12,135 @@ const app = require("../index");
 beforeEach(() => seed({ topicData, articleData, userData, commentData }));
 
 afterAll(() => db.end());
-describe("Error tests", () => {
-  describe("testing 404 endpoint when given non existing URL", () => {
-    test("should output 404 and a message when givien a invalid url", () => {
-      return request(app)
-        .get("/api/badURL")
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Invalid Path !");
-        });
-    });
+describe("testing 404 endpoint when given non existing URL", () => {
+  test("should output 404 and a message when givien a invalid url", () => {
+    return request(app)
+      .get("/api/badURL")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid Path !");
+      });
   });
-  describe("test for non existing id on app GET /api/articles/:article_id", () => {
-    const nonExistingId = 99999999;
-    test("should output a 404 and a message when given non=existent id", () => {
-      return request(app)
-        .get(`/api/articles/${nonExistingId}`)
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("This article id does not exist !");
-        });
-    });
-  });
+});
 
-  describe("test for get /api/articles/:article_id/comments is given a non existing id", () => {
+describe("testing app /api/topics", () => {
+  describe("testing GET on /api/topics", () => {
+    const testTopicObj = {
+      description: expect.any(String),
+      slug: expect.any(String),
+    };
+    test("should return an array of topic objects with correct properties and status 200", () => {
+      return request(app)
+        .get("/api/topics")
+        .expect(200)
+        .then(({ body }) => {
+          const topics = body;
+          expect(topics).toHaveLength(3);
+          topics.forEach(topic => {
+            expect.objectContaining(testTopicObj);
+          });
+          // expect(topics).toEqual(
+          //   expect.arrayContaining([expect.objectContaining(testTopicObj)])
+          // );
+        });
+    });
+  });
+});
+
+describe("testing app /api/users", () => {
+  describe("testing app GET /api/users", () => {
+    const testUserObj = {
+      username: expect.any(String),
+      name: expect.any(String),
+      avatar_url: expect.any(String),
+    };
+    test("should return an array of user object with correct properties and satus 200", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const users = body;
+          expect(body).toHaveLength(4);
+          users.forEach(user => {
+            expect.objectContaining(testUserObj)
+          });
+          // expect(users).toEqual(
+          //   expect.arrayContaining([expect.objectContaining(testUserObj)])
+          // );
+        });
+    });
+  });
+});
+
+describe("testing app /api/articles", () => {
+  describe("testing GET on /api/articles", () => {
+    const testArticleObj = {
+      article_id: expect.any(Number),
+      title: expect.any(String),
+      topic: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
+      created_at: expect.any(String),
+      votes: expect.any(Number),
+      comment_count: expect.any(Number),
+    };
+    test("should return an array of article objects with correct properties, status 200 by default sorted by descending date", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const articles = body;
+          expect(articles).toHaveLength(12);
+          expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z");
+          articles.forEach(article => {
+            expect.objectContaining(testArticleObj)
+          });
+          // expect(articles).toEqual(
+          //   expect.arrayContaining([expect.objectContaining(testArticleObj)])
+          // );
+        });
+    });
+  });
+});
+
+describe("testing app /api/articles/:article_id/comments", () => {
+  describe("testing GET on /api/articles/:article_id/comments", () => {
+    const testCommentsObj = {
+      comment_id: expect.any(Number),
+      votes: expect.any(Number),
+      created_at: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
+    };
+    const articleId = 1;
+    test("should return an array of comments with correct properties", () => {
+      return request(app)
+        .get(`/api/articles/${articleId}/comments`)
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body;
+          expect(comments).toHaveLength(11);
+          comments.forEach(comment => {
+            expect.objectContaining(testCommentsObj)
+          });
+          // expect(comments).toEqual(
+          //   expect.arrayContaining([expect.objectContaining(testCommentsObj)])
+          // );
+        });
+    });
+  });
+  describe("test GET errors on /api/articles/:article_id/comments is given a badId", () => {
+    const badId = "thisisabadId";
+    test("should output 400 and a message stating the id is invalid for comments endpoint", () => {
+      return request(app)
+        .get(`/api/articles/${badId}/comments`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Your body or request has the wrong input type");
+        });
+    });
+  });
+  describe("test GET errors for when /api/articles/:article_id/comments is given a non existing id", () => {
     const nonExistingId = 99999999;
     test("should output a 404 and a message when given non=existent id for comments endpoint", () => {
       return request(app)
@@ -46,8 +151,70 @@ describe("Error tests", () => {
         });
     });
   });
+  describe("test GET errors for non existing id on /api/articles/:article_id", () => {
+    const nonExistingId = 99999999;
+    test("should output a 404 and a message when given non=existent id", () => {
+      return request(app)
+        .get(`/api/articles/${nonExistingId}`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("This article id does not exist !");
+        });
+    });
+  });
+  describe("testing POST on /api/articles/:article_id/comments", () => {
+    const testCommentsObj1 = {
+      comment_id: expect.any(Number),
+      votes: 0,
+      created_at: expect.any(String),
+      article_id: 1,
+      author: "icellusedkars",
+      body: "I am 100% sure",
+    };
+    const testBody1 = {
+      username: "icellusedkars",
+      body: "I am 100% sure",
+    };
+    const articleId = 1;
+    test("should return a 201 and the new comment", () => {
+      return request(app)
+        .post(`/api/articles/${articleId}/comments`)
+        .send(testBody1)
+        .expect(201)
+        .then(({ body }) => {
+          const comment = body;
+          expect(body).toEqual({ comment: testCommentsObj1 });
+        });
+    });
+  });
+});
 
-  describe("tests for incorrect input types", () => {
+describe("testing /api/articles/:article_id", () => {
+  describe("testing GET on /api/articles/:article_id", () => {
+    const testArticleObj = {
+      title: expect.any(String),
+      topic: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
+      created_at: expect.any(String),
+      votes: expect.any(Number),
+    };
+    const articleId = 1;
+    test("should return an article object (1) with correct properties and status 200", () => {
+      return request(app)
+        .get(`/api/articles/${articleId}`)
+        .expect(200)
+        .then(({ body }) => {
+          const article = body;
+          expect(article).toEqual({
+            article_id: 1,
+            ...testArticleObj,
+            comment_count: 11,
+          });
+        });
+    });
+  });
+  describe("test GET errors on /api/articles/:article_id for incorrect input types ", () => {
     const badId = "thisisabadId";
     test("should output 400 and a message stating the id is invalid", () => {
       return request(app)
@@ -57,14 +224,7 @@ describe("Error tests", () => {
           expect(msg).toBe("Your body or request has the wrong input type");
         });
     });
-    test("should output 400 and a message stating the id is invalid for comments endpoint", () => {
-      return request(app)
-        .get(`/api/articles/${badId}/comments`)
-        .expect(400)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Your body or request has the wrong input type");
-        });
-    });
+
     const badTypeBody = {
       inc_votes: "NotType",
     };
@@ -78,8 +238,54 @@ describe("Error tests", () => {
         });
     });
   });
-
-  describe("tests for malformed body", () => {
+  describe("testing PATCH on /api/articles/:article_id", () => {
+    const testArticleObj1 = {
+      article_id: 1,
+      title: expect.any(String),
+      topic: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
+      created_at: expect.any(String),
+      votes: 101,
+    };
+    const testBody1 = {
+      inc_votes: 1,
+    };
+    const articleId = 1;
+    test("should return a 200 and the updated article with postive increase", () => {
+      return request(app)
+        .patch(`/api/articles/${articleId}`)
+        .send(testBody1)
+        .expect(200)
+        .then(({ body }) => {
+          const article = body;
+          expect(article).toEqual({ article: testArticleObj1 });
+        });
+    });
+    const testArticleObj2 = {
+      article_id: 1,
+      title: expect.any(String),
+      topic: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
+      created_at: expect.any(String),
+      votes: 99,
+    };
+    const testBody2 = {
+      inc_votes: -1,
+    };
+    test("should return a 200 and the updated article with negative increase", () => {
+      return request(app)
+        .patch(`/api/articles/${articleId}`)
+        .send(testBody2)
+        .expect(200)
+        .then(({ body }) => {
+          const article = body;
+          expect(article).toEqual({ article: testArticleObj2 });
+        });
+    });
+  });
+  describe("test PATCH erros for malformed body on /api/articles/:article_id", () => {
     const emptyBody = {};
     test("should output a 400 and a message stating the body is malformed/missing fields when given empty body", () => {
       return request(app)
@@ -102,192 +308,5 @@ describe("Error tests", () => {
           expect(msg).toBe("The body is missing fields or Malformed !");
         });
     });
-  });
-});
-
-describe("testing app GET /api/topics", () => {
-  const testTopicObj = {
-    description: expect.any(String),
-    slug: expect.any(String),
-  };
-  test("should return an array of topic objects with correct properties and status 200", () => {
-    return request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then(({ body }) => {
-        const topics = body;
-        expect(topics).toHaveLength(3);
-        expect(topics).toEqual(
-          expect.arrayContaining([expect.objectContaining(testTopicObj)])
-        );
-      });
-  });
-});
-
-describe("testing app GET /api/users", () => {
-  const testUserObj = {
-    username: expect.any(String),
-    name: expect.any(String),
-    avatar_url: expect.any(String),
-  };
-  test("should return an array of user object with correct properties and satus 200", () => {
-    return request(app)
-      .get("/api/users")
-      .expect(200)
-      .then(({ body }) => {
-        const users = body;
-        expect(body).toHaveLength(4);
-        expect(users).toEqual(
-          expect.arrayContaining([expect.objectContaining(testUserObj)])
-        );
-      });
-  });
-});
-
-describe("testing app GET /api/articles", () => {
-  const testArticleObj = {
-    article_id: expect.any(Number),
-    title: expect.any(String),
-    topic: expect.any(String),
-    author: expect.any(String),
-    body: expect.any(String),
-    created_at: expect.any(String),
-    votes: expect.any(Number),
-    comment_count: expect.any(Number),
-  };
-  test("should return an array of article objects with correct properties, status 200 by default sorted by descending date", () => {
-    return request(app)
-      .get("/api/articles")
-      .expect(200)
-      .then(({ body }) => {
-        const articles = body;
-        expect(articles).toHaveLength(12);
-        expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z");
-        expect(articles).toEqual(
-          expect.arrayContaining([expect.objectContaining(testArticleObj)])
-        );
-      });
-  });
-});
-
-describe("testing app /api/articles/:article_id/comments", () => {
-  const testCommentsObj = {
-    comment_id: expect.any(Number),
-    votes: expect.any(Number),
-    created_at: expect.any(String),
-    author: expect.any(String),
-    body: expect.any(String),
-  };
-  const articleId = 1;
-  test("should return an array of comments with correct properties", () => {
-    return request(app)
-      .get(`/api/articles/${articleId}/comments`)
-      .expect(200)
-      .then(({ body }) => {
-        const comments = body;
-        expect(comments).toHaveLength(11);
-        expect(comments).toEqual(
-          expect.arrayContaining([expect.objectContaining(testCommentsObj)])
-        );
-      });
-  });
-});
-
-describe("testing app GET /api/articles/:article_id", () => {
-  const testArticleObj = {
-    title: expect.any(String),
-    topic: expect.any(String),
-    author: expect.any(String),
-    body: expect.any(String),
-    created_at: expect.any(String),
-    votes: expect.any(Number),
-  };
-  const articleId = 1;
-  test("should return an article object (1) with correct properties and status 200", () => {
-    return request(app)
-      .get(`/api/articles/${articleId}`)
-      .expect(200)
-      .then(({ body }) => {
-        const article = body;
-        expect(article).toEqual({
-          article_id: 1,
-          ...testArticleObj,
-          comment_count: 11,
-        });
-      });
-  });
-});
-
-describe("testing PATCH /api/articles/:article_id", () => {
-  const testArticleObj1 = {
-    article_id: 1,
-    title: expect.any(String),
-    topic: expect.any(String),
-    author: expect.any(String),
-    body: expect.any(String),
-    created_at: expect.any(String),
-    votes: 101,
-  };
-  const testBody1 = {
-    inc_votes: 1,
-  };
-  const articleId = 1;
-  test("should return a 200 and the updated article with postive increase", () => {
-    return request(app)
-      .patch(`/api/articles/${articleId}`)
-      .send(testBody1)
-      .expect(200)
-      .then(({ body }) => {
-        const article = body;
-        expect(article).toEqual({ article: testArticleObj1 });
-      });
-  });
-  const testArticleObj2 = {
-    article_id: 1,
-    title: expect.any(String),
-    topic: expect.any(String),
-    author: expect.any(String),
-    body: expect.any(String),
-    created_at: expect.any(String),
-    votes: 99,
-  };
-  const testBody2 = {
-    inc_votes: -1,
-  };
-  test("should return a 200 and the updated article with negative increase", () => {
-    return request(app)
-      .patch(`/api/articles/${articleId}`)
-      .send(testBody2)
-      .expect(200)
-      .then(({ body }) => {
-        const article = body;
-        expect(article).toEqual({ article: testArticleObj2 });
-      });
-  });
-});
-
-describe('testing POST /api/articles/:article_id/comments', () => {
-  const testCommentsObj1 = {
-    comment_id : expect.any(Number),
-    votes : 0,
-    created_at : expect.any(String),
-    article_id : 1,
-    author : "icellusedkars",
-    body : "I am 100% sure"
-  }
-  const testBody1 = {
-    username : "icellusedkars",
-    body : "I am 100% sure"
-  }
-  const articleId = 1
-  test('should return a 201 and the new comment', () => {
-    return request(app)
-    .post(`/api/articles/${articleId}/comments`)
-    .send(testBody1)
-    .expect(201)
-    .then(({ body}) => {
-      const comment = body
-      expect(body).toEqual({ comment : testCommentsObj1})
-    })
   });
 });
