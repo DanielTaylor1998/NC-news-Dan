@@ -63,6 +63,32 @@ describe('testing app GET /api/users', () => {
     });
 });
 
+describe('testing app GET /api/articles', () => {
+    const testArticleObj = {
+        article_id : expect.any(Number),
+        title: expect.any(String),
+        topic: expect.any(String),
+        author: expect.any(String),
+        body: expect.any(String),
+        created_at: expect.any(String),
+        votes: expect.any(Number),
+        comment_count: expect.any(Number)
+      };
+      test('should return an array of article objects with correct properties, status 200 by default sorted by descending date', () => {
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+            const articles = body;
+            expect(articles).toHaveLength(12)
+            expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z")
+            expect(articles).toEqual(
+                expect.arrayContaining([expect.objectContaining(testArticleObj)])
+            )
+        })
+      });
+});
+
 describe("testing for non exist resources", () => {
   const nonExistingId = 99999999;
   test("should output a 404 and a message when given non=existent id", () => {
