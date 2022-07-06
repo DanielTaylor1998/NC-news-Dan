@@ -6,6 +6,7 @@ const {
   getUsers,
   getArticles,
   getComments,
+  postComment,
 } = require("./controllers");
 const {
   invalidPathError,
@@ -30,6 +31,8 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getComments)
 
 app.patch("/api/articles/:article_id", patchArticle);
+
+app.post("/api/articles/:article_id/comments", postComment);
 
 //error handler for invalid paths
 app.use("*", invalidPathError);

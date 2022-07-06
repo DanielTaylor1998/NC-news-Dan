@@ -6,6 +6,7 @@ const {
   selectUsers,
   selectArticles,
   selectComments,
+  createComment,
 } = require("../models");
 
 exports.getTopics = (req, res, next) => {
@@ -57,5 +58,15 @@ exports.getComments = (req, res, next) => {
     .then((comments) => {
       res.status(200).send(comments);
     })
-    .catch(next)
-}
+    .catch(next);
+};
+
+exports.postComment = (req, res, next) => {
+  const {article_id} = req.params;
+  const body = req.body;
+  createComment(article_id, body)
+  .then((comment) => {
+    res.status(201).send({ comment: comment})
+  })
+  .catch(next)
+};

@@ -265,3 +265,29 @@ describe("testing PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe('testing POST /api/articles/:article_id/comments', () => {
+  const testCommentsObj1 = {
+    comment_id : expect.any(Number),
+    votes : 0,
+    created_at : expect.any(String),
+    article_id : 1,
+    author : "icellusedkars",
+    body : "I am 100% sure"
+  }
+  const testBody1 = {
+    username : "icellusedkars",
+    body : "I am 100% sure"
+  }
+  const articleId = 1
+  test('should return a 201 and the new comment', () => {
+    return request(app)
+    .post(`/api/articles/${articleId}/comments`)
+    .send(testBody1)
+    .expect(201)
+    .then(({ body}) => {
+      const comment = body
+      expect(body).toEqual({ comment : testCommentsObj1})
+    })
+  });
+});

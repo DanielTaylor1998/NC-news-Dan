@@ -43,3 +43,12 @@ exports.selectComments = async (article_id) => {
   if (!result.rows[0]) throw { status: 404, msg: "This article id does not exist !" }
   return result.rows;
 }
+
+exports.createComment = async (article_id, bodyinfo) => {
+  const { username, body} = bodyinfo
+  const queryValues = [username, body, article_id]
+  const queryStr = "INSERT INTO comments (author, body, article_id) VALUES ($1, $2, $3) RETURNING *;"
+  const result = await db.query(queryStr, queryValues);
+  const comment = result.rows[0];
+  return comment
+}
