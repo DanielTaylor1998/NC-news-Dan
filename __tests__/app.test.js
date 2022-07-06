@@ -213,6 +213,38 @@ describe("testing app /api/articles/:article_id/comments", () => {
         });
     });
   });
+  describe('testing POST errors on /api/articles/:article_id/comments when given a non existing id', () => {
+    const nonExistingId = 24;
+    const testBody1 = {
+      username: "icellusedkars",
+      body: "I am 100% sure",
+    };
+    test('should output a 404 and a message when given non=existent id for comments endpoint', () => {
+      return request(app)
+        .post(`/api/articles/${nonExistingId}/comments`)
+        .send(testBody1)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("This article id does not exist !");
+        });
+    });
+  });
+  describe('testing POST errors on /api/articles/:article_id/comments when given a non existing user', () => {
+    const testBody = {
+      username: "idontexist!",
+      body: "This Shouldn't work !",
+    }
+    const articleId = 1;
+    test('should return a 404 and a message when given a non existent user', () => {
+      return request(app)
+        .post(`/api/articles/${articleId}/comments`)
+        .send(testBody)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("This user does not exist !");
+        });
+    });
+  });
 });
 
 describe("testing /api/articles/:article_id", () => {

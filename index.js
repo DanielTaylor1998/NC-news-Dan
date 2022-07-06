@@ -14,6 +14,7 @@ const {
   unhandlesErrorHandler,
   malformedBodyHandler,
   invalidSyntaxForType,
+  foreignKeyInvalidInsertHandler,
 } = require("./errors/errorHandler");
 
 const app = express();
@@ -40,6 +41,8 @@ app.use("*", invalidPathError);
 app.use("/", invalidSyntaxForType);
 
 app.use(malformedBodyHandler);
+
+app.use(foreignKeyInvalidInsertHandler);
 
 //default error handlers
 app.use(customErrorHandler);
