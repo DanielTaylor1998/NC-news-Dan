@@ -52,7 +52,7 @@ exports.getUsers = (req, res, next) => {
     .catch(next);
 };
 
-exports.getComments = (req, res, next) => {
+exports.getCommentsById = (req, res, next) => {
   const { article_id } = req.params;
   selectComments(article_id)
     .then((comments) => {
