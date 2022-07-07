@@ -30,10 +30,9 @@ exports.getArticles = (req, res, next) => {
   if (sort_by === "date") {
     sort_by = "created_at"
   }
+  const topic = req.query.topic
 
-  let topic = req.query.topic
-
-  let orderBy = req.query.order
+  const orderBy = req.query.order
 
   selectArticles(sort_by, orderBy, topic)
     .then((articles) => {
