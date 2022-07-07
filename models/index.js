@@ -80,3 +80,10 @@ exports.createComment = async (article_id, bodyinfo) => {
   const comment = result.rows[0];
   return comment;
 };
+
+exports.removeComment = async (comment_id) => {
+  const testExists = await db.query("SELECT * FROM comments WHERE comment_id = $1", [comment_id])
+  if(!testExists.rows[0]) throw { status : 404, msg : "This comment doesn't exist"}
+  const queryStr = 'DELETE FROM comments WHERE comment_id = $1'
+  await db.query(queryStr, [comment_id]);
+}
