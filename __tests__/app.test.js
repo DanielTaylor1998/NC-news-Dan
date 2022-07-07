@@ -234,6 +234,32 @@ describe("testing app /api/articles", () => {
       });
     });
   });
+  describe('testing GET Errors on /api/articles with queries', () => {
+    test('should return a 404 and message when given non existent topic', () => {
+      return request(app)
+          .get("/api/articles?topic=idontexist")
+          .expect(404)
+          .then(({ body : { msg }}) => {
+            expect(msg).toBe("This topic does not exist in table")
+          });
+    });
+    test('should only allow ASC and DESC in Order and return a 400 and message', () => {
+      return request(app)
+      .get("/api/articles?order=idontexist")
+          .expect(400)
+          .then(({ body : { msg }}) => {
+            expect(msg).toBe("Invalid Order Query")
+          });
+    });
+    test('should only allow valid columns in sortby and return a 400 and message', () => {
+      return request(app)
+      .get("/api/articles?sort_by=idontexist")
+          .expect(400)
+          .then(({ body : { msg }}) => {
+            expect(msg).toBe("Invalid Sort Query")
+          });
+    });
+  });
 });
 
 describe("testing app /api/articles/:article_id/comments", () => {
