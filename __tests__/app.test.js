@@ -168,6 +168,46 @@ describe("testing app /api/articles", () => {
           })
       });
     });
+    describe('Order queries', () => {
+      test('should respond with array of articles in ascending order ', () => {
+        return request(app)
+          .get('/api/articles?order=asc')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].created_at).toEqual("2020-01-07T14:08:00.000Z")
+          })
+      });
+      test('should respond with array of articles in descending order ', () => {
+        return request(app)
+          .get('/api/articles?order=desc')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z")
+          })
+      });
+    });
+    describe('Sort and Order queries', () => {
+      test('should return an array of article objects with correct properties, status 200 and be sorted by title and in ascedning order', () => {
+        return request(app)
+          .get('/api/articles?sort_by=title&order=asc')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].title).toEqual("A")
+          })
+      });
+      test('should return an array of article objects with correct properties, status 200 and be sorted by title and in descending order', () => {
+        return request(app)
+          .get('/api/articles?sort_by=title&order=desc')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].title).toEqual("Z")
+          })
+      });
+    });
   });
 });
 
