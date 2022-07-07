@@ -18,7 +18,12 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectArticles()
+  let sort_by = req.query.sort_by;
+  if (sort_by === "date") {
+    sort_by = "created_at"
+  }
+  let orderBy = req.query.order
+  selectArticles(sort_by, orderBy)
     .then((articles) => {
       res.status(200).send(articles);
     })
@@ -62,11 +67,11 @@ exports.getCommentsById = (req, res, next) => {
 };
 
 exports.postComment = (req, res, next) => {
-  const {article_id} = req.params;
+  const { article_id } = req.params;
   const body = req.body;
   createComment(article_id, body)
-  .then((comment) => {
-    res.status(201).send({ comment: comment})
-  })
-  .catch(next)
+    .then((comment) => {
+      res.status(201).send({ comment: comment });
+    })
+    .catch(next);
 };

@@ -73,7 +73,7 @@ describe("testing app /api/users", () => {
 });
 
 describe("testing app /api/articles", () => {
-  describe("testing GET on /api/articles", () => {
+  describe("testing GET on /api/articles with no queries", () => {
     const testArticleObj = {
       article_id: expect.any(Number),
       title: expect.any(String),
@@ -99,6 +99,74 @@ describe("testing app /api/articles", () => {
           //   expect.arrayContaining([expect.objectContaining(testArticleObj)])
           // );
         });
+    });
+  });
+  describe('testing GET on /api/articles with queries', () => {
+    describe('Sort queries defaulted to desc', () => {
+      test('should return an array of article objects with correct properties, status 200 and be sorted by title', () => {
+        return request(app)
+          .get('/api/articles?sort_by=title')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].title).toEqual("Z")
+          })
+      });
+      test('should return an array of article objects with correct properties, status 200 and be sorted by topic', () => {
+        return request(app)
+          .get('/api/articles?sort_by=topic')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].topic).toEqual("mitch")
+          })
+      });
+      test('should return an array of article objects with correct properties, status 200 and be sorted by author', () => {
+        return request(app)
+          .get('/api/articles?sort_by=author')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].author).toEqual("rogersop")
+          })
+      });
+      test('should return an array of article objects with correct properties, status 200 and be sorted by body', () => {
+        const expectedBody = "some gifs"
+        return request(app)
+          .get('/api/articles?sort_by=body')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].body).toEqual(expectedBody)
+          })
+      });
+      test('should return an array of article objects with correct properties, status 200 and be sorted by date when specified', () => {
+        return request(app)
+          .get('/api/articles?sort_by=date')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z")
+          })
+      });
+      test('should return an array of article objects with correct properties, status 200 and be sorted by votes', () => {
+        return request(app)
+          .get('/api/articles?sort_by=votes')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].votes).toEqual(100)
+          })
+      });
+      test('should return an array of article objects with correct properties, status 200 and be sorted by article_id', () => {
+        return request(app)
+          .get('/api/articles?sort_by=article_id')
+          .expect(200)
+          .then(({ body}) => {
+            const articles = body
+            expect(articles[0].votes).toEqual(0)
+          })
+      });
     });
   });
 });

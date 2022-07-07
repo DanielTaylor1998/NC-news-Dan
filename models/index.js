@@ -14,8 +14,8 @@ exports.selectArticle = async (article_id) => {
   return article;
 };
 
-exports.selectArticles = async () => {
-  const queryStr = "SELECT articles.*, CAST(COUNT(comments.article_id) AS int) AS comment_count FROM articles LEFT OUTER JOIN comments USING (article_id) GROUP BY article_id ORDER BY created_at DESC;"
+exports.selectArticles = async (sortBy = "created_at", orderBy = "DESC") => {
+  const queryStr = `SELECT articles.*, CAST(COUNT(comments.article_id) AS int) AS comment_count FROM articles LEFT OUTER JOIN comments USING (article_id) GROUP BY article_id ORDER BY ${sortBy} ${orderBy};`
   const result = await db.query(queryStr);
   return result.rows;
 }
