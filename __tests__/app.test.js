@@ -9,6 +9,7 @@ const db = require("../db/connection");
 const request = require("supertest");
 const app = require("../index");
 
+
 beforeEach(() => seed({ topicData, articleData, userData, commentData }));
 
 afterAll(() => db.end());
@@ -36,7 +37,7 @@ describe("testing app /api/topics", () => {
         .then(({ body }) => {
           const topics = body;
           expect(topics).toHaveLength(3);
-          topics.forEach(topic => {
+          topics.forEach((topic) => {
             expect.objectContaining(testTopicObj);
           });
           // expect(topics).toEqual(
@@ -61,8 +62,8 @@ describe("testing app /api/users", () => {
         .then(({ body }) => {
           const users = body;
           expect(body).toHaveLength(4);
-          users.forEach(user => {
-            expect.objectContaining(testUserObj)
+          users.forEach((user) => {
+            expect.objectContaining(testUserObj);
           });
           // expect(users).toEqual(
           //   expect.arrayContaining([expect.objectContaining(testUserObj)])
@@ -73,7 +74,7 @@ describe("testing app /api/users", () => {
 });
 
 describe("testing app /api/articles", () => {
-  describe("testing GET on /api/articles", () => {
+  describe("testing GET on /api/articles with no queries", () => {
     const testArticleObj = {
       article_id: expect.any(Number),
       title: expect.any(String),
@@ -92,13 +93,174 @@ describe("testing app /api/articles", () => {
           const articles = body;
           expect(articles).toHaveLength(12);
           expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z");
-          articles.forEach(article => {
-            expect.objectContaining(testArticleObj)
+          articles.forEach((article) => {
+            expect.objectContaining(testArticleObj);
           });
           // expect(articles).toEqual(
           //   expect.arrayContaining([expect.objectContaining(testArticleObj)])
           // );
         });
+    });
+  });
+  describe("testing GET on /api/articles with queries", () => {
+    describe("Sort queries defaulted to desc", () => {
+      test("should return an array of article objects, status 200 and be sorted by title", () => {
+        return request(app)
+          .get("/api/articles?sort_by=title")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "title", descending: true});
+          });
+      });
+      test("should return an array of article objects, status 200 and be sorted by topic", () => {
+        return request(app)
+          .get("/api/articles?sort_by=topic")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "topic", descending: true});
+          });
+      });
+      test("should return an array of article objects, status 200 and be sorted by author", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "author", descending: true});
+          });
+      });
+      test("should return an array of article objects, status 200 and be sorted by body", () => {
+        const expectedBody = "some gifs";
+        return request(app)
+          .get("/api/articles?sort_by=body")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "body", descending: true});
+          });
+      });
+      test("should return an array of article objects, status 200 and be sorted by date when specified", () => {
+        return request(app)
+          .get("/api/articles?sort_by=date")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "created_at", descending: true});
+          });
+      });
+      test("should return an array of article objects, status 200 and be sorted by votes", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "votes", descending: true});
+          });
+      });
+      test("should return an array of article objects, status 200 and be sorted by article_id", () => {
+        return request(app)
+          .get("/api/articles?sort_by=article_id")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "article_id", descending: true});
+          });
+      });
+    });
+    describe("Order queries", () => {
+      test("should respond with array of articles in ascending order ", () => {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({ ascending: true});
+          });
+      });
+      test("should respond with array of articles in descending order ", () => {
+        return request(app)
+          .get("/api/articles?order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({ descending: true});
+          });
+      });
+    });
+    describe("Sort and Order queries", () => {
+      test("should return an array of article objects, status 200 and be sorted by title and in ascending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=title&order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "title", ascending: true});
+          });
+      });
+      test("should return an array of article objects, status 200 and be sorted by title and in descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=title&order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles).toBeSorted({key : "title", descending: true})
+          });
+      });
+    });
+    describe("Topic queries", () => {
+      test("should return an array of article objects only related to specific topic, status 200", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            articles.forEach(article => {
+              expect(article.topic).toEqual("mitch");
+            });
+            expect(articles).toHaveLength(11);
+          });
+      });
+    });
+    describe('All three queries', () => {
+      test('should return an array of article objects, status 200 and be sorted by title,in descending order, and relating only to topic mitch', () => {
+        return request(app)
+          .get("/api/articles?sort_by=title&order=desc&topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body;
+            expect(articles[0].title).toEqual("Z");
+            expect(articles[0].topic).toEqual("mitch");
+            expect(articles).toHaveLength(11);
+          });
+      });
+    });
+  });
+  describe('testing GET Errors on /api/articles with queries', () => {
+    test('should return a 404 and message when given non existent topic', () => {
+      return request(app)
+          .get("/api/articles?topic=idontexist")
+          .expect(404)
+          .then(({ body : { msg }}) => {
+            expect(msg).toBe("This topic does not exist in table")
+          });
+    });
+    test('should only allow ASC and DESC in Order and return a 400 and message', () => {
+      return request(app)
+      .get("/api/articles?order=idontexist")
+          .expect(400)
+          .then(({ body : { msg }}) => {
+            expect(msg).toBe("Invalid Order Query")
+          });
+    });
+    test('should only allow valid columns in sortby and return a 400 and message', () => {
+      return request(app)
+      .get("/api/articles?sort_by=idontexist")
+          .expect(400)
+          .then(({ body : { msg }}) => {
+            expect(msg).toBe("Invalid Sort Query")
+          });
     });
   });
 });
@@ -112,7 +274,7 @@ describe("testing app /api/articles/:article_id/comments", () => {
       author: expect.any(String),
       body: expect.any(String),
     };
-   
+
     test("should return an array of comments with correct properties", () => {
       const articleId = 1;
       return request(app)
@@ -121,24 +283,24 @@ describe("testing app /api/articles/:article_id/comments", () => {
         .then(({ body }) => {
           const comments = body;
           expect(comments).toHaveLength(11);
-          comments.forEach(comment => {
-            expect.objectContaining(testCommentsObj)
+          comments.forEach((comment) => {
+            expect.objectContaining(testCommentsObj);
           });
           // expect(comments).toEqual(
           //   expect.arrayContaining([expect.objectContaining(testCommentsObj)])
           // );
         });
     });
-    
-    test('should return an empty array if the article_id exists but has no comments', () => {
+
+    test("should return an empty array if the article_id exists but has no comments", () => {
       const articleId = 4;
       return request(app)
-      .get(`/api/articles/${articleId}/comments`)
-      .expect(200)
-      .then(({body}) => {
-        const comments = body;
-        expect(comments).toEqual([])
-      })
+        .get(`/api/articles/${articleId}/comments`)
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body;
+          expect(comments).toEqual([]);
+        });
     });
   });
   describe("test GET errors on /api/articles/:article_id/comments is given a badId", () => {
@@ -188,13 +350,13 @@ describe("testing app /api/articles/:article_id/comments", () => {
         });
     });
   });
-  describe('testing POST errors for malformed body on /api/articles/:article_id/comments', () => {
+  describe("testing POST errors for malformed body on /api/articles/:article_id/comments", () => {
     const emptyBody = {};
     const malformedBody = {
       bad: 9999,
-    }
+    };
     const articleId = 1;
-    test('should output a 400 and a message stating the body is malformed/missing fields when given empty body', () => {
+    test("should output a 400 and a message stating the body is malformed/missing fields when given empty body", () => {
       return request(app)
         .post(`/api/articles/${articleId}/comments`)
         .send(emptyBody)
@@ -203,7 +365,7 @@ describe("testing app /api/articles/:article_id/comments", () => {
           expect(msg).toBe("The body is missing fields or Malformed !");
         });
     });
-    test('should output a 400 and a message stating the body is malformed/missing fields when given malformed body', () => {
+    test("should output a 400 and a message stating the body is malformed/missing fields when given malformed body", () => {
       return request(app)
         .post(`/api/articles/${articleId}/comments`)
         .send(malformedBody)
@@ -213,13 +375,13 @@ describe("testing app /api/articles/:article_id/comments", () => {
         });
     });
   });
-  describe('testing POST errors on /api/articles/:article_id/comments when given a non existing id', () => {
+  describe("testing POST errors on /api/articles/:article_id/comments when given a non existing id", () => {
     const nonExistingId = 24;
     const testBody1 = {
       username: "icellusedkars",
       body: "I am 100% sure",
     };
-    test('should output a 404 and a message when given non=existent id for comments endpoint', () => {
+    test("should output a 404 and a message when given non=existent id for comments endpoint", () => {
       return request(app)
         .post(`/api/articles/${nonExistingId}/comments`)
         .send(testBody1)
@@ -229,13 +391,13 @@ describe("testing app /api/articles/:article_id/comments", () => {
         });
     });
   });
-  describe('testing POST errors on /api/articles/:article_id/comments when given a non existing user', () => {
+  describe("testing POST errors on /api/articles/:article_id/comments when given a non existing user", () => {
     const testBody = {
       username: "idontexist!",
       body: "This Shouldn't work !",
-    }
+    };
     const articleId = 1;
-    test('should return a 404 and a message when given a non existent user', () => {
+    test("should return a 404 and a message when given a non existent user", () => {
       return request(app)
         .post(`/api/articles/${articleId}/comments`)
         .send(testBody)
