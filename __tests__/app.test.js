@@ -9,6 +9,7 @@ const db = require("../db/connection");
 const request = require("supertest");
 const app = require("../index");
 
+
 beforeEach(() => seed({ topicData, articleData, userData, commentData }));
 
 afterAll(() => db.end());
@@ -109,7 +110,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].title).toEqual("Z");
+            expect(articles).toBeSorted({key : "title", descending: true});
           });
       });
       test("should return an array of article objects, status 200 and be sorted by topic", () => {
@@ -118,7 +119,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].topic).toEqual("mitch");
+            expect(articles).toBeSorted({key : "topic", descending: true});
           });
       });
       test("should return an array of article objects, status 200 and be sorted by author", () => {
@@ -127,7 +128,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].author).toEqual("rogersop");
+            expect(articles).toBeSorted({key : "author", descending: true});
           });
       });
       test("should return an array of article objects, status 200 and be sorted by body", () => {
@@ -137,7 +138,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].body).toEqual(expectedBody);
+            expect(articles).toBeSorted({key : "body", descending: true});
           });
       });
       test("should return an array of article objects, status 200 and be sorted by date when specified", () => {
@@ -146,7 +147,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z");
+            expect(articles).toBeSorted({key : "created_at", descending: true});
           });
       });
       test("should return an array of article objects, status 200 and be sorted by votes", () => {
@@ -155,7 +156,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].votes).toEqual(100);
+            expect(articles).toBeSorted({key : "votes", descending: true});
           });
       });
       test("should return an array of article objects, status 200 and be sorted by article_id", () => {
@@ -164,7 +165,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].votes).toEqual(0);
+            expect(articles).toBeSorted({key : "article_id", descending: true});
           });
       });
     });
@@ -175,7 +176,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].created_at).toEqual("2020-01-07T14:08:00.000Z");
+            expect(articles).toBeSorted({ ascending: true});
           });
       });
       test("should respond with array of articles in descending order ", () => {
@@ -184,7 +185,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].created_at).toEqual("2020-11-03T09:12:00.000Z");
+            expect(articles).toBeSorted({ descending: true});
           });
       });
     });
@@ -195,7 +196,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].title).toEqual("A");
+            expect(articles).toBeSorted({key : "title", ascending: true});
           });
       });
       test("should return an array of article objects, status 200 and be sorted by title and in descending order", () => {
@@ -204,7 +205,7 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].title).toEqual("Z");
+            expect(articles).toBeSorted({key : "title", descending: true})
           });
       });
     });
@@ -215,7 +216,9 @@ describe("testing app /api/articles", () => {
           .expect(200)
           .then(({ body }) => {
             const articles = body;
-            expect(articles[0].topic).toEqual("mitch");
+            articles.forEach(article => {
+              expect(article.topic).toEqual("mitch");
+            });
             expect(articles).toHaveLength(11);
           });
       });
