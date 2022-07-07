@@ -38,8 +38,21 @@ exports.selectUsers = async () => {
 
 exports.selectComments = async (article_id) => {
   const queryStr = "SELECT * FROM comments WHERE article_id = $1"
-  let queryValues = [article_id]
+  const queryValues = [article_id]
   const result = await db.query(queryStr, queryValues)
-  if (!result.rows[0]) throw { status: 404, msg: "This article id does not exist !" }
+  if (!result.rows[0]) {
+    const article = await db.query("SELECT * FROM articles WHERE article_id = $1", queryValues) //test to see if the article exists but has no comments
+    if (!article.rows[0]) throw { status: 404, msg: "This article id does not exist !" }
+    else return result.rows;
+  }
   return result.rows;
+}
+
+exports.createComment = async (article_id, bodyinfo) => {
+  const { username, body} = bodyinfo
+  const queryValues = [username, body, article_id] 
+  const queryStr = "INSERT INTO comments (author, body, article_id) VALUES ($1, $2, $3) RETURNING *;"
+  const result = await db.query(queryStr, queryValues);
+  const comment = result.rows[0];
+  return comment
 }

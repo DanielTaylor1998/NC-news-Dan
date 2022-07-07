@@ -20,6 +20,15 @@ exports.malformedBodyHandler = (err, req, res, next) => {
     } else next(err)
 }
 
+exports.foreignKeyInvalidInsertHandler = (err, req, res, next) => {
+    if (err.code === '23503' && err.constraint === 'comments_author_fkey') {
+        res.status(404).send({ msg : "This user does not exist !"})     //Specific to comments table
+    } else if (err.code === '23503' && err.constraint === 'comments_article_id_fkey') {
+        res.status(404).send({ msg : "This article id does not exist !"}) 
+    } 
+    else next(err)
+}
+
 //Last Error Handler - Only for errors without a handler
 exports.unhandlesErrorHandler = (err, req, res, next) => {
     if (err) {

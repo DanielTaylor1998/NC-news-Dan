@@ -5,7 +5,8 @@ const {
   patchArticle,
   getUsers,
   getArticles,
-  getComments,
+  getCommentsById,
+  postComment,
 } = require("./controllers");
 const {
   invalidPathError,
@@ -13,6 +14,7 @@ const {
   unhandlesErrorHandler,
   malformedBodyHandler,
   invalidSyntaxForType,
+  foreignKeyInvalidInsertHandler,
 } = require("./errors/errorHandler");
 
 const app = express();
@@ -27,9 +29,11 @@ app.get("/api/users", getUsers);
 
 app.get("/api/articles", getArticles);
 
-app.get("/api/articles/:article_id/comments", getComments)
+app.get("/api/articles/:article_id/comments", getCommentsById)
 
 app.patch("/api/articles/:article_id", patchArticle);
+
+app.post("/api/articles/:article_id/comments", postComment);
 
 //error handler for invalid paths
 app.use("*", invalidPathError);
@@ -37,6 +41,8 @@ app.use("*", invalidPathError);
 app.use("/", invalidSyntaxForType);
 
 app.use(malformedBodyHandler);
+
+app.use(foreignKeyInvalidInsertHandler);
 
 //default error handlers
 app.use(customErrorHandler);
