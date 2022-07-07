@@ -8,6 +8,7 @@ const {
 const db = require("../db/connection");
 const request = require("supertest");
 const app = require("../index");
+const endpoint = require("../endpoints.json");
 
 beforeEach(() => seed({ topicData, articleData, userData, commentData }));
 
@@ -557,6 +558,19 @@ describe("testing /api/articles/:article_id", () => {
         .then(({ body: { msg } }) => {
           expect(msg).toBe("The body is missing fields or Malformed !");
         });
+    });
+  });
+});
+
+describe('testing /api', () => {
+  describe('testing GET /api', () => {
+    test('should respond with a JSON describing all endpoints', () => {
+        return request(app)
+          .get("/api")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toEqual(endpoint)
+          })
     });
   });
 });

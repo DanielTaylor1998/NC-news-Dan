@@ -8,6 +8,7 @@ const {
   getCommentsById,
   postComment,
   deleteCommentById,
+  getEndpoints,
 } = require("./controllers");
 const {
   invalidPathError,
@@ -21,6 +22,8 @@ const {
 const app = express();
 
 app.use(express.json());
+
+app.get("/api", getEndpoints)
 
 app.get("/api/topics", getTopics);
 
