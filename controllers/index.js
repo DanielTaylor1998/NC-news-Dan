@@ -10,6 +10,12 @@ const {
   removeComment,
 } = require("../models");
 
+const endpoints = require('../endpoints.json');
+
+exports.getEndpoints = (req, res, next) => {
+  res.status(200).send(endpoints);
+}
+
 exports.getTopics = (req, res, next) => {
   selectTopics()
     .then((topics) => {
