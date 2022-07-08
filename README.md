@@ -2,14 +2,14 @@
 
 ## Summary
 
-This is an API for accessing a database containing articles,user, and comments. Its purpose is to mimic the backend of a web feed or news/social media website
+This is an API for accessing a database containing articles, user, and comments. Its purpose is to mimic the backend of a web feed or news/social media website
 
 
 
 
 ## Kanban
 
-### Link to your Trello Board here: https://trello.com/b/WuP0vxAh/nc-news-dan
+### Link to to Trello Board here: https://trello.com/b/WuP0vxAh/nc-news-dan
 
 ## Hosted App
 
@@ -39,22 +39,22 @@ if you wish to expand on the functionality of this API, it is best that you fork
 
 ### Install NPM
 
-To correctly run this application you will need Node Package Manager to do so run open the directory (in your terminal!) in which you have cloned/forked the repo and run the command `npm install`. You will also Node version 16.15.1, to do so run the command `node -v` to check your version and if you have nvm (node version manager, higly recommend !) installed run `nvm use 16`, [NPM docs](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) have guide to getting started with both npm and installing Node.
+To correctly run this application you will need Node Package Manager to do so open the directory (in your terminal!) in which you have cloned/forked the repo and run the command `npm install`. You will also Node version 16.15.1, to do so run the command `node -v` to check your version and if you have nvm (node version manager, higly recommend !) installed run `nvm use 16`, [NPM docs](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) have guide to getting started with both npm and installing Node.
 
 ### PostgreSQL
 
-The database are run on PSQL (PostgreSQL) which must be installed to host the database locally, to do so simply donwload the correct installer from [here] (https://www.postgresql.org/download/) and follow this guide to [getting started](https://www.postgresql.org/docs/current/tutorial-start.html). This application was created using PSQL(12.11) to simply check run these commands.
+The database are run on PSQL (PostgreSQL) which must be installed to host the database locally, to do so simply download the correct installer from [here] (https://www.postgresql.org/download/) and follow this guide to [getting started](https://www.postgresql.org/docs/current/tutorial-start.html). This application was created using PSQL(12.11) to simply check run these commands.
 
 ```
 psql
 SELECT version();
 ```
 
-You may recieve an ERROR: Cannot connect to database/server this happens because you have started PSQL service to do so run the command `sudo service postgresql start`
+You may recieve an `ERROR: Cannot connect to database/server` this happens because you have started PSQL service to do so run the command `sudo service postgresql start`
 
 ### Hosting the database locally (optional)
 
-Although not required to run the application; if for any reason you wish to query the database manually, then you will need to host the databases locally. I have created scripts in the package.json to quickly do this:
+Although not required to run the application; if for any reason you wish to query the database manually, then you will need to host the databases locally. I have created scripts in the package.json to quickly do this.
 
 to create the databases: 
 
