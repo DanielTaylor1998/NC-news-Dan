@@ -7,6 +7,7 @@ const {
   getArticles,
   getCommentsById,
   postComment,
+  deleteCommentById,
 } = require("./controllers");
 const {
   invalidPathError,
@@ -34,6 +35,8 @@ app.get("/api/articles/:article_id/comments", getCommentsById)
 app.patch("/api/articles/:article_id", patchArticle);
 
 app.post("/api/articles/:article_id/comments", postComment);
+
+app.delete("/api/comments/:comment_id", deleteCommentById)
 
 //error handler for invalid paths
 app.use("*", invalidPathError);

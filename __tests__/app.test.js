@@ -73,6 +73,37 @@ describe("testing app /api/users", () => {
   });
 });
 
+describe('testing app /api/comments/:comment_id', () => {
+  describe('testing delete on /api/comments/:comment_id', () => {
+    test('should respond with 204 and no content', () => {
+      const comment_id = 1;
+      return request(app)
+        .delete(`/api/comments/${comment_id}`)
+        .expect(204)
+    });
+  });
+  describe('testing delete errors on /api/comments/:comment_id', () => {
+    test('should output a 404 and message when given non existing comment id', () => {
+      const comment_id = 99999;
+      return request(app)
+        .delete(`/api/comments/${comment_id}`)
+        .expect(404)
+        .then(({body: { msg }}) => {
+          expect(msg).toBe("This comment doesn't exist")
+        })
+    });
+    test('should output a 400 and message when given a bad comment id/incorrect type', () => {
+      const comment_id = 'badId';
+      return request(app)
+        .delete(`/api/comments/${comment_id}`)
+        .expect(400)
+        .then(({body: { msg }}) => {
+          expect(msg).toBe("Your body or request has the wrong input type")
+        })
+    });
+  });
+});
+
 describe("testing app /api/articles", () => {
   describe("testing GET on /api/articles with no queries", () => {
     const testArticleObj = {
