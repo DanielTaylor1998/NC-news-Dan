@@ -84,13 +84,22 @@ describe('testing app /api/comments/:comment_id', () => {
     });
   });
   describe('testing delete errors on /api/comments/:comment_id', () => {
-    test('should output a 404 and when given non existing comment id', () => {
+    test('should output a 404 and message when given non existing comment id', () => {
       const comment_id = 99999;
       return request(app)
         .delete(`/api/comments/${comment_id}`)
         .expect(404)
         .then(({body: { msg }}) => {
           expect(msg).toBe("This comment doesn't exist")
+        })
+    });
+    test('should output a 400 and message when given a bad comment id/incorrect type', () => {
+      const comment_id = 'badId';
+      return request(app)
+        .delete(`/api/comments/${comment_id}`)
+        .expect(400)
+        .then(({body: { msg }}) => {
+          expect(msg).toBe("Your body or request has the wrong input type")
         })
     });
   });
