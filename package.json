@@ -8,7 +8,6 @@
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
     "test": "jest",
-    "prepare": "husky install",
     "seed:prod": "NODE_ENV=production DATABASE_URL=https://nc-news-dan-production.up.railway.app/api npm run seed"
   },
   "repository": {
